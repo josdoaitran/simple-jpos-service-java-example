@@ -6,15 +6,15 @@ import org.jpos.iso.packager.GenericPackager;
 
 import java.io.IOException;
 
-public class MockIso8583Service implements ISORequestListener {
+public class MockISO8583Service implements ISORequestListener {
 
     public static void main(String[] args) throws ISOException {
         String hostName = "localhost";
         int portNumber = 5000;
-        ISOPackager packager = new GenericPackager("CustomerConfig.xml");
+        ISOPackager packager = new GenericPackager("CustomConfig.xml");
         ServerChannel channel = new ASCIIChannel(hostName, portNumber, packager);
         ISOServer server = new ISOServer(portNumber, channel, null);
-        server.addISORequestListener(new MockIso8583Service());
+        server.addISORequestListener(new MockISO8583Service());
         System.out.println("Let's Start !!!!! ISO8583 Service");
         new Thread(server).start();
         System.out.println("ISO8583 Service Started successfully");
@@ -27,9 +27,9 @@ public class MockIso8583Service implements ISORequestListener {
             System.out.println("ISO8583 Incoming message on Host: ["
             + ((BaseChannel) isoSource).getSocket().getInetAddress().getHostAddress() + "]");
             receiveMessage(isoSource, isoMsg);
-
+            logISOMsg(isoMsg);
         }catch (Exception e){
-
+            e.printStackTrace();
         }
         return false;
     }
@@ -41,5 +41,21 @@ public class MockIso8583Service implements ISORequestListener {
         reply.set(39, "00");
         System.out.println("ISO8583 Service will reply by received message .....");
         isoSource.send(reply);
+    }
+
+    private static void logISOMsg(ISOMsg msg) {
+        System.out.println("----ISO MESSAGE to Pack-----");
+        try {
+            System.out.println("  MTI : " + msg.getMTI());
+            for (int i = 1; i <= msg.getMaxField(); i++) {
+                if (msg.hasField(i)) {
+                    System.out.println("    Field-" + i + " : " + msg.getString(i));
+                }
+            }
+        } catch (ISOException e) {
+            e.printStackTrace();
+        } finally {
+            System.out.println("--------------------");
+        }
     }
 }
