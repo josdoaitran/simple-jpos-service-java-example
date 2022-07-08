@@ -41,8 +41,7 @@ public class MockISO8583Service implements ISORequestListener {
         System.out.println("ISO8583 Service will receive message .....");
         ISOMsg reply = (ISOMsg) isoMsg.clone();
         reply.setMTI("2100");
-        System.out.println("ISO8583 Tesst000000000");
-        reply.set(32, "00000000001");
+        reply.set(32, "10000000001");
         System.out.println("ISO8583 Service will reply by received message .....");
         isoSource.send(reply);
     }
