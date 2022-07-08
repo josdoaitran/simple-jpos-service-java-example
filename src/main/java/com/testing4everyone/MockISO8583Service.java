@@ -3,6 +3,7 @@ package com.testing4everyone;
 import org.jpos.iso.*;
 import org.jpos.iso.channel.ASCIIChannel;
 import org.jpos.iso.packager.GenericPackager;
+import org.jpos.iso.packager.XMLPackager;
 
 import java.io.IOException;
 
@@ -10,8 +11,9 @@ public class MockISO8583Service implements ISORequestListener {
 
     public static void main(String[] args) throws ISOException {
         String hostName = "localhost";
-        int portNumber = 5000;
-        ISOPackager packager = new GenericPackager("CustomConfig.xml");
+        int portNumber = 5001;
+//        ISOPackager packager = new GenericPackager("CustomConfig.xml");
+        XMLPackager packager = new XMLPackager();
         ServerChannel channel = new ASCIIChannel(hostName, portNumber, packager);
         ISOServer server = new ISOServer(portNumber, channel, null);
         server.addISORequestListener(new MockISO8583Service());
@@ -20,12 +22,13 @@ public class MockISO8583Service implements ISORequestListener {
         System.out.println("ISO8583 Service Started successfully");
     }
 
-    @Override
+
     public boolean process(ISOSource isoSource, ISOMsg isoMsg) {
 
         try{
             System.out.println("ISO8583 Incoming message on Host: ["
             + ((BaseChannel) isoSource).getSocket().getInetAddress().getHostAddress() + "]");
+
             receiveMessage(isoSource, isoMsg);
             logISOMsg(isoMsg);
         }catch (Exception e){
@@ -36,9 +39,10 @@ public class MockISO8583Service implements ISORequestListener {
 
     private void receiveMessage(ISOSource isoSource, ISOMsg isoMsg) throws ISOException, IOException {
         System.out.println("ISO8583 Service will receive message .....");
-        ISOMsg reply = (ISOMsg)isoMsg.clone();
-        reply.setMTI("0210");
-        reply.set(39, "00");
+        ISOMsg reply = (ISOMsg) isoMsg.clone();
+        reply.setMTI("2100");
+        System.out.println("ISO8583 Tesst000000000");
+        reply.set(32, "00000000001");
         System.out.println("ISO8583 Service will reply by received message .....");
         isoSource.send(reply);
     }
